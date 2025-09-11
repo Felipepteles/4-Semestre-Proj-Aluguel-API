@@ -1,0 +1,113 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgres"
+  url      = env("DATABASE_URL")
+}
+
+model Categoria {
+  id          Int          @id @default(autoincrement())
+  nome        String       @db.VarChar(30)
+  ferramentas Ferramenta[]
+
+  @@map("categorias")
+}
+
+model Marca {
+  id          Int          @id @default(autoincrement())
+  nome        String       @db.VarChar(30)
+  ferramentas Ferramenta[]
+
+  @@map("marcas")
+}
+
+model Admin {
+  id          String       @id @default(uuid()) @db.VarChar(36)
+  nome        String       @db.VarChar(60)
+  email       String       @db.VarChar(40)
+  senha       String       @db.VarChar(60)
+  ferramentas Ferramenta[]
+
+  @@map("admins")
+}
+
+model Ferramenta {
+  id          Int       @id @default(autoincrement())
+  nome        String    @db.VarChar(30)
+  descricao   String    @db.VarChar(60)
+  foto        String
+  preco       Decimal   @db.Decimal(10, 2)
+  status      Boolean   @default(true)
+  observacao  String?   @db.VarChar(100)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt()
+  categoria   Categoria @relation(fields: [categoriaId], references: [id])
+  categoriaId Int
+  marca       Marca     @relation(fields: [marcaId], references: [id])
+  marcaId     Int
+  admin       Admin    @relation(fields: [adminId], references: [id])
+  adminId     String
+  reserva     Reserva[]
+
+  @@map("ferramentas")
+}
+
+model Cliente {
+  id       String     @id @default(uuid()) @db.VarChar(36)
+  nome     String     @db.VarChar(30)
+  email    String     @db.VarChar(100)
+  cpf      String     @db.VarChar(12)
+  senha    String     @db.VarChar(60)
+  reservas Reserva[]
+  Telefone Telefone[]
+  Endereco Endereco[]
+
+  @@map("clientes")
+}
+
+model Telefone {
+  id        Int     @id @default(autoincrement())
+  tel1      Int
+  tel2      Int?
+  cliente   Cliente @relation(fields: [clienteId], references: [id])
+  clienteId String
+
+  @@map("telefones")
+}
+
+model Endereco {
+  id         Int     @id @default(autoincrement())
+  logradouro String  @db.VarChar(40)
+  num        Int
+  bairro     String  @db.VarChar(40)
+  cidade     String  @db.VarChar(40)
+  estado     String  @db.Char(2)
+  cep        Int
+  cliente    Cliente @relation(fields: [clienteId], references: [id])
+  clienteId  String
+
+  @@map("enderecos")
+}
+
+model Reserva {
+  id           Int        @id @default(autoincrement())
+  dataInicio   DateTime   @default(now())
+  dataFim      DateTime  @updatedAt()
+  status       Status     @default(pendente)
+  valor        Decimal    @db.Decimal(10, 2)
+  descricao   String? @db.VarChar(255)
+  cliente      Cliente    @relation(fields: [clienteId], references: [id])
+  clienteId    String
+  ferramenta   Ferramenta @relation(fields: [ferramentaId], references: [id])
+  ferramentaId Int
+
+  @@map("reservas")
+}
+
+enum Status {
+  pendente
+  confirmado
+  cancelada
+}

@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "reservas" ADD COLUMN     "descricao" VARCHAR(255),
+ALTER COLUMN "dataInicio" SET DEFAULT CURRENT_TIMESTAMP;
