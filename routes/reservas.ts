@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client'
+import { error } from 'console'
 import { Router } from 'express'
-import { z } from 'zod'
+import { boolean, z } from 'zod'
 
 const prisma = new PrismaClient()
 const router = Router()
@@ -10,6 +11,8 @@ const reservasSchema = z.object({
     ferramentaId: z.number(),
     descricao: z.string(),
     valor: z.number(),
+    dataInicio: z.string(),
+    dataFim: z.string()
 })
 
 router.get("/", async (req, res) => {
@@ -25,7 +28,6 @@ router.get("/", async (req, res) => {
     res.status(500).json({ erro: error })
   }
 })
-
 
 router.get("/:clienteId", async (req, res) => {
   const { clienteId } = req.params
@@ -56,10 +58,11 @@ router.post("/", async (req, res) => {
         return
     }
     
-    const { clienteId, ferramentaId, descricao, valor }= valida.data
+    const { clienteId, ferramentaId, descricao, valor, dataInicio, dataFim }= valida.data
 
     const dadoFerramenta = await prisma.ferramenta.findUnique({
-    where: { id: ferramentaId }
+    where: { id: ferramentaId },
+    include: { reserva: true }
   })
 
   const dadoCliente = await prisma.cliente.findUnique({
@@ -76,20 +79,42 @@ router.post("/", async (req, res) => {
     return
   }
 
+  let disponivelReservar = true
+  const inicioReserva = new Date(dataInicio)
+  const fimReserva = new Date(dataFim)
+  
+  dadoFerramenta.reserva.forEach(reserva =>{
+    if (reserva.dataInicio <= inicioReserva && reserva.dataFim >= inicioReserva  || reserva.dataInicio <= fimReserva && reserva.dataFim >= fimReserva || inicioReserva <= reserva.dataInicio && fimReserva >= reserva.dataFim){
+      disponivelReservar = false
+    }
+  })
+
     try {
-      const [reserva, ferramenta] = await prisma.$transaction([
-        prisma.reserva.create({
-          data:{clienteId, ferramentaId, descricao, valor : Number(dadoFerramenta?.preco)  }
-        }),
-        prisma.ferramenta.update({
-          where:{id: ferramentaId},
-          data:{ status: false}
-        })])
-      res.status(201).json({reserva, ferramenta})
+      if (disponivelReservar){
+        const reserva = await prisma.reserva.create({
+        data:{clienteId, ferramentaId, descricao, valor : Number(dadoFerramenta?.preco), dataInicio: inicioReserva, dataFim: fimReserva  }
+        })
+        res.status(201).json({reserva})
+      }else{
+        throw new Error("Esta ferramenta já esta reservada nesta data")
+      }
     }catch(error){
       res.status(400).json({ error })
     }
 
+})
+
+router.delete("/:id", async (req, res)=>{
+  const {id} = req.params
+
+  try{
+    const reserva = await prisma.reserva.delete({
+      where: {id: Number(id)}
+    })
+    res.status(204).json()
+  }catch(error){
+    res.status(400).json({erro: error})
+  }
 })
 
 
