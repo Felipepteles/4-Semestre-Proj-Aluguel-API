@@ -57,7 +57,7 @@ router.post("/", authMiddleware, async (req : Request | any, res) => {
     }
 
     // Pega o adminId que o middleware injetou na requisição!
-    const adminId = req.adminId;
+    const adminId = req.adminId
 
     if (!adminId) {
         return res.status(401).json({ erro: 'ID do admin não encontrado no token.'});
@@ -81,10 +81,10 @@ router.delete("/:id", authMiddleware, async (req : Request | any, res) => {
     try {
         const ferramenta = await prisma.ferramenta.findUnique({
             where: { id: Number(id) }
-        });
+        })
 
         if (!ferramenta) {
-            return res.status(404).json({ erro: "Ferramenta não encontrada." });
+            return res.status(404).json({ erro: "Ferramenta não encontrada." })
         }
 
         await prisma.ferramenta.delete({
@@ -92,7 +92,7 @@ router.delete("/:id", authMiddleware, async (req : Request | any, res) => {
         })
         res.status(200).json({ mensagem: "Ferramenta deletada com sucesso." });
     } catch (error) {
-        res.status(500).json({ erro: "Ocorreu um erro ao deletar a ferramenta.", detalhes: error });
+        res.status(500).json({ erro: "Ocorreu um erro ao deletar a ferramenta.", detalhes: error })
     }
 })
 
