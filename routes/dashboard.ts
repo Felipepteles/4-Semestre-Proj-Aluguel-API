@@ -9,7 +9,9 @@ router.get("/gerais", async (req, res) => {
     const clientes = await prisma.cliente.count()
     const ferramentas = await prisma.ferramenta.count()
     const reservas = await prisma.reserva.count()
-    res.status(200).json({ clientes, ferramentas, reservas })
+    const enderecos = await prisma.endereco.count()
+
+    res.status(200).json({ clientes, ferramentas, reservas, enderecos })
   } catch (error) {
     res.status(400).json(error)
   }
@@ -54,19 +56,19 @@ type ClienteGroupByCidade = {
 
 router.get("/clientesCidade", async (req, res) => {
   try {
-    const clientes = await prisma.endereco.groupBy({
+    const enderecos = await prisma.endereco.groupBy({
       by: ['cidade'],
       _count: {
         cidade: true,
       }
     })
 
-    const clientes2 = clientes.map((cliente: ClienteGroupByCidade) => ({
-      cidade: cliente.cidade,
-      num: cliente._count.cidade
+    const enderecos2 = enderecos.map((endereco: ClienteGroupByCidade) => ({
+      cidade: endereco.cidade,
+      num: endereco._count.cidade
     }))
 
-    res.status(200).json(clientes2)
+    res.status(200).json(enderecos2)
   } catch (error) {
     res.status(400).json(error)
   }
