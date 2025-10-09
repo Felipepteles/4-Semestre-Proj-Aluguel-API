@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "admins" ADD COLUMN     "nivel" SMALLINT NOT NULL DEFAULT 2;
