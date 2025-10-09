@@ -95,10 +95,10 @@ model Endereco {
 model Reserva {
   id           Int        @id @default(autoincrement())
   dataInicio   DateTime   @default(now())
-  dataFim      DateTime  @updatedAt()
+  dataFim      DateTime   @updatedAt()
   status       Status     @default(pendente)
   valor        Decimal    @db.Decimal(10, 2)
-  descricao   String? @db.VarChar(255)
+  descricao    String? @db.VarChar(255)
   cliente      Cliente    @relation(fields: [clienteId], references: [id])
   clienteId    String
   ferramenta   Ferramenta @relation(fields: [ferramentaId], references: [id])
