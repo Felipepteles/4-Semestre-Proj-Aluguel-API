@@ -95,7 +95,7 @@ model Endereco {
 model Reserva {
   id           Int        @id @default(autoincrement())
   dataInicio   DateTime   @default(now())
-  dataFim      DateTime   @updatedAt()
+  dataFim      DateTime   
   status       Status     @default(pendente)
   valor        Decimal    @db.Decimal(10, 2)
   descricao    String? @db.VarChar(255)
