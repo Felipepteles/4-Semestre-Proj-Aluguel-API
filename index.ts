@@ -9,6 +9,8 @@ import routesEnderecos from './routes/enderecos'
 import routesMarcas from './routes/marcas'
 import routesTelefones from './routes/telefones'
 import routesReservas from './routes/reservas'
+import routesDashboard from './routes/dashboard'
+
 
 const app = express()
 const port = 3000
@@ -24,6 +26,7 @@ app.use("/enderecos", routesEnderecos)
 app.use("/marcas", routesMarcas)
 app.use("/telefones", routesTelefones)
 app.use("/reservas", routesReservas)
+app.use("/dashboard", routesDashboard)
 
 app.get('/', (req, res) => {
   res.send('API: Sistema de Aluguel de Ferramentas')
