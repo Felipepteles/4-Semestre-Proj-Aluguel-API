@@ -9,9 +9,7 @@ const reservasSchema = z.object({
     clienteId: z.string(),
     ferramentaId: z.number(),
     descricao: z.string(),
-    valor: z.number(),
-    dataFim: z.date().min(new Date()),
-    dataInicio: z.date().min(new Date ())
+    valor: z.number()
 })
 
 router.get("/", async (req, res) => {
@@ -58,7 +56,7 @@ router.post("/", async (req, res) => {
         return
     }
     
-    const { clienteId, ferramentaId, descricao, valor, dataFim, dataInicio }= valida.data
+    const { clienteId, ferramentaId, descricao, valor }= valida.data
 
     const dadoFerramenta = await prisma.ferramenta.findUnique({
     where: { id: ferramentaId }
@@ -81,7 +79,7 @@ router.post("/", async (req, res) => {
     try {
       const [reserva, ferramenta] = await prisma.$transaction([
         prisma.reserva.create({
-          data:{dataFim, dataInicio, clienteId, ferramentaId, descricao, valor : Number(dadoFerramenta?.preco)  }
+          data:{clienteId, ferramentaId, descricao, valor : Number(dadoFerramenta?.preco)  }
         }),
         prisma.ferramenta.update({
           where:{id: ferramentaId},
