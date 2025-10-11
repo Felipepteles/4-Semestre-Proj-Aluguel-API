@@ -14,6 +14,8 @@ const adminSchema = z.object({
     email: z.string().email().min(10,
         { message: "E-mail, no mínimo, 10 caracteres" }),
     senha: z.string().min(6, { message: "Senha deve possuir, no mínimo, 6 caracteres" }),
+    nivel: z.number().min(1).max(1,
+        { message: "Nível deve possuir, no mínimo, 1 número inteiro e no máximo, 1 número inteiro" }),
 })
 
 function validaSenha(senha: string) {
@@ -87,11 +89,11 @@ router.post("/", async (req, res) => {
 
     const salt = bcrypt.genSaltSync(12)
     const hash = bcrypt.hashSync(valida.data.senha, salt)
-    const { nome, email} = valida.data
+    const { nome, email, nivel } = valida.data
 
     try {
         const admin = await prisma.admin.create({
-            data: { nome, email, senha: hash }
+            data: { nome, email, nivel, senha: hash }
         })
         res.status(201).json(admin)
     } catch (error) {
@@ -103,32 +105,32 @@ router.post("/login", async (req, res) => {
     const { email, senha } = req.body
     const mensaPadrao = "Login ou senha incorretos"
 
-  try {
-    const admins = await prisma.admin.findFirst({
-      where: { email }
-    })
+    try {
+        const admins = await prisma.admin.findFirst({
+            where: { email }
+        })
 
-    if (admins == null) {
-      res.status(400).json({ erro: mensaPadrao })
-      return
+        if (admins == null) {
+            res.status(400).json({ erro: mensaPadrao })
+            return
+        }
+
+        if (bcrypt.compareSync(senha, admins.senha)) {
+            const token = jwt.sign(
+                {
+                    id: admins.id,
+                    nome: admins.nome
+                },
+                process.env.JWT_KEY as string,
+                { expiresIn: "1h" }
+            );
+            res.status(200).json({ admins, token });
+        } else {
+            res.status(400).json({ erro: mensaPadrao });
+        }
+    } catch (error) {
+        res.status(400).json(error);
     }
-    
-    if (bcrypt.compareSync(senha, admins.senha)) {
-        const token = jwt.sign(
-            {
-                id: admins.id,
-                nome: admins.nome
-            },
-            process.env.JWT_KEY as string, 
-            { expiresIn: "1h" } 
-        );
-        res.status(200).json({ admins, token });
-    } else {
-        res.status(400).json({ erro: mensaPadrao });
-    }
-  } catch (error) {
-    res.status(400).json(error);
-  }
 })
 
 router.delete("/:id", async (req, res) => {
@@ -153,14 +155,14 @@ router.put("/:id", async (req, res) => {
         return
     }
 
-    const { nome, email, senha } = valida.data
+    const { nome, email, nivel, senha } = valida.data
     const salt = bcrypt.genSaltSync(12);
     const hash = bcrypt.hashSync(senha, salt);
 
     try {
         const admins = await prisma.admin.update({
             where: { id },
-            data: { nome, email, senha: hash }
+            data: { nome, email, nivel, senha: hash }
         })
         res.status(200).json(admins)
     } catch (error) {
