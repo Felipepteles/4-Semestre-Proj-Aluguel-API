@@ -79,7 +79,11 @@ router.get("/:id", async (req, res) => {
     const { id } = req.params
     try {
         const cliente = await prisma.cliente.findUnique({
-            where: { id }
+            where: { id },
+            include: {
+                Endereco: true,
+                Telefone: true
+            }
         })
         res.status(200).json(cliente)
     } catch (error) {
