@@ -68,7 +68,12 @@ function validaSenha(senha: string) {
 
 router.get("/", async (req, res) => {
     try {
-        const clientes = await prisma.cliente.findMany({})
+        const clientes = await prisma.cliente.findMany({
+            include: {
+                Endereco: true,
+                Telefone: true
+            }
+        })
         res.status(200).json(clientes)
     } catch (error) {
         res.status(500).json({ erro: error })
