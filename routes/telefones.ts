@@ -7,8 +7,8 @@ const prisma = new PrismaClient()
 const router = Router()
 
 const telefonesSchema = z.object({
-    tel1: z.number().min(9, { message: "Telefone 1 deve possuir, no mínimo, 9 caracteres" }),
-    tel2: z.number().min(9, { message: "Telefone 2 deve possuir, no mínimo, 9 caracteres" }).optional(),
+    tel1: z.string().min(11, {message: "O telefone deve possuir, exatamente 11 caracteres"}),
+    tel2: z.string().min(11, {message: "O telefone deve possuir, exatamente 11 caracteres"}).optional(),
     clienteId: z.string().uuid()
 })
 

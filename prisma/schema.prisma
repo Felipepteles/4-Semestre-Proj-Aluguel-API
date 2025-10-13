@@ -70,8 +70,8 @@ model Cliente {
 
 model Telefone {
   id        Int     @id @default(autoincrement())
-  tel1      Int
-  tel2      Int?
+  tel1      String
+  tel2      String?
   cliente   Cliente @relation(fields: [clienteId], references: [id])
   clienteId String
 

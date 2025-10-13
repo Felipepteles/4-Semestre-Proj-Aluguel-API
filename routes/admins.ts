@@ -15,7 +15,7 @@ const adminSchema = z.object({
         { message: "E-mail, no mínimo, 10 caracteres" }),
     senha: z.string().min(6, { message: "Senha deve possuir, no mínimo, 6 caracteres" }),
     nivel: z.number().min(1).max(1,
-        { message: "Nível deve possuir, no mínimo, 1 número inteiro e no máximo, 1 número inteiro" }),
+        { message: "Nível deve possuir, exatamente, 1 caractere" }),
 })
 
 function validaSenha(senha: string) {
