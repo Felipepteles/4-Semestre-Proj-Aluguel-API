@@ -14,8 +14,8 @@ const adminSchema = z.object({
     email: z.string().email().min(10,
         { message: "E-mail, no mínimo, 10 caracteres" }),
     senha: z.string().min(6, { message: "Senha deve possuir, no mínimo, 6 caracteres" }),
-    nivel: z.number().min(1).max(1,
-        { message: "Nível deve possuir, exatamente, 1 caractere" }),
+    nivel: z.number().min(1).max(5,
+        { message: "Nível deve possuir, um valor entre 1 e 5" }),
 })
 
 function validaSenha(senha: string) {
@@ -163,6 +163,25 @@ router.put("/:id", async (req, res) => {
         const admins = await prisma.admin.update({
             where: { id },
             data: { nome, email, nivel, senha: hash }
+        })
+        res.status(200).json(admins)
+    } catch (error) {
+        res.status(400).json({ error })
+    }
+})
+
+router.patch("/:id", async (req, res) => {
+    const { id } = req.params
+    const { nivel } = req.body
+    const valida = adminSchema.pick({nivel: true}).safeParse(req.body)
+    if (!valida.success) {
+        res.status(400).json({ erro: valida.error })
+        return
+    }
+    try {
+        const admins = await prisma.admin.update({
+            where: { id },
+            data: { nivel: nivel }
         })
         res.status(200).json(admins)
     } catch (error) {

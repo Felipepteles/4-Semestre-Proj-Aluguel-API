@@ -68,7 +68,7 @@ function gerarTabelaReservaHTML(dados: any) {
               <td>${dados.ferramenta.nome}</td>
               <td>${dados.ferramenta.marca?.nome || 'N/A'}</td>
               <td>${dados.ferramenta.categoria?.nome || 'N/A'}</td>
-              <td style="text-align:right;">${Number(dados.ferramenta.preco).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+              <td>${Number(dados.ferramenta.preco).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
             </tr>
           </tbody>
         </table>
