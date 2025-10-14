@@ -103,6 +103,7 @@ model Reserva {
   clienteId    String
   ferramenta   Ferramenta @relation(fields: [ferramentaId], references: [id])
   ferramentaId Int
+  createdAt   DateTime  @default(now())
 
   @@map("reservas")
 }

@@ -171,7 +171,7 @@ router.post("/", async (req, res) => {
   }
 
   if (!dadoFerramenta) {
-    res.status(400).json({ erro: "Erro... Código do Cliente inválido" })
+    res.status(400).json({ erro: "Erro... Código da Ferramenta inválido" })
     return
   }
 
