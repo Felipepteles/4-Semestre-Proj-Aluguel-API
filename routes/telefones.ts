@@ -8,7 +8,7 @@ const router = Router()
 
 const telefonesSchema = z.object({
     tel1: z.string().min(10).max(11, {message: "O telefone deve possuir, no mínimo 10 caracteres e no máximo 11 caracteres."}),
-    tel2: z.string().min(10).max(11, {message: "O telefone deve possuir, no mínimo 10 caracteres e no máximo 11 caracteres."}).optional(),
+    tel2: z.string().min(10).max(11, {message: "O telefone deve possuir, no mínimo 10 caracteres e no máximo 11 caracteres."}).nullable(),
     clienteId: z.string().uuid()
 })
 
