@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client'
 import { Router } from 'express'
 import { z } from 'zod'
 import authMiddleware from '../middlewares/auth'; //Adicionei essa linha para importar o middleware de autenticação
+import { verificaNivel } from '../middlewares/verificaNivel';
 
 const prisma = new PrismaClient()
 
@@ -95,7 +96,7 @@ router.post("/", authMiddleware, async (req : Request | any, res) => {
     }
 })
 
-router.delete("/:id", authMiddleware, async (req : Request | any, res) => {
+router.delete("/:id", authMiddleware, verificaNivel(['ADMIN']), async (req : Request | any, res) => {
     const { id } = req.params
 
     try {
@@ -194,7 +195,7 @@ router.get("/pesquisa/:termo", async (req, res) => {
   }
 })
 
-router.patch("/destacar/:id", authMiddleware, async (req : Request | any, res) => {
+router.patch("/destacar/:id", verificaNivel(['ADMIN','MODERADOR','COMUM']), authMiddleware,  async (req : Request | any, res) => {
   const { id } = req.params
 
   try {

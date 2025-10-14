@@ -6,6 +6,17 @@ interface TokenPayload {
     nome: string;
     iat: number;
     exp: number;
+    nivel: string;
+}
+
+declare global {
+  namespace Express {
+    interface Request {
+      id?: string
+      nome?: string
+      nivel?: string
+    }
+  }
 }
 
 export default function authMiddleware(req: Request | any, res: Response, next: NextFunction) {
@@ -19,9 +30,10 @@ export default function authMiddleware(req: Request | any, res: Response, next: 
 
     try {
         const data = jwt.verify(token, process.env.JWT_KEY as string);
-        const { id } = data as TokenPayload;
-
-        req.adminId = id; 
+        const { id, nome, nivel } = data as TokenPayload;
+        req.id = id
+        req.nome = nome
+        req.nivel = nivel
 
         return next();
         

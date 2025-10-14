@@ -28,7 +28,7 @@ model Admin {
   nome        String       @db.VarChar(60)
   email       String       @db.VarChar(40)
   senha       String       @db.VarChar(60)
-  nivel       Int         @db.SmallInt @default(2)
+  nivel       Nivel
   ferramentas Ferramenta[]
 
   @@map("admins")
@@ -113,3 +113,10 @@ enum Status {
   confirmado
   cancelada
 }
+
+enum Nivel {
+  COMUM
+  MODERADOR
+  ADMIN
+}
+
