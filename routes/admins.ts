@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+import { Nivel, PrismaClient } from '@prisma/client'
 import { Router } from 'express'
 import { z } from 'zod'
 import bcrypt from 'bcrypt'
@@ -14,8 +14,7 @@ const adminSchema = z.object({
     email: z.string().email().min(10,
         { message: "E-mail, no mínimo, 10 caracteres" }),
     senha: z.string().min(6, { message: "Senha deve possuir, no mínimo, 6 caracteres" }),
-    nivel: z.number().min(1).max(5,
-        { message: "Nível deve possuir, um valor entre 1 e 5" }),
+    nivel: z.nativeEnum(Nivel),
 })
 
 function validaSenha(senha: string) {

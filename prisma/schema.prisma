@@ -28,7 +28,7 @@ model Admin {
   nome        String       @db.VarChar(60)
   email       String       @db.VarChar(40)
   senha       String       @db.VarChar(60)
-  nivel       Nivel
+  nivel       Nivel?
   ferramentas Ferramenta[]
 
   @@map("admins")
