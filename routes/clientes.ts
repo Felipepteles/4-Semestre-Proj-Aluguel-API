@@ -13,9 +13,9 @@ const clienteSchema = z.object({
         { message: "Nome deve possuir, no mínimo, 3 caracteres" }),
     email: z.string().email().min(10,
         { message: "E-mail, no mínimo, 10 caracteres" }),
-    cpf: z.string().min(11, 
+    cpf: z.string().min(11,
         { message: "CPF deve possuir, no mínimo, 11 caracteres" }),
-    senha: z.string().min(6, 
+    senha: z.string().min(6,
         { message: "Senha deve possuir, no mínimo, 6 caracteres" }),
 })
 
@@ -100,39 +100,39 @@ router.post("/login", async (req, res) => {
     const { email, senha } = req.body
     const mensaPadrao = "Login ou senha incorretos"
 
-  try {
-    const clientes = await prisma.cliente.findFirst({
-      where: { email }
-    })
+    try {
+        const clientes = await prisma.cliente.findFirst({
+            where: { email }
+        })
 
-    if (clientes == null) {
-      res.status(400).json({ erro: mensaPadrao })
-      return
-    }
-    // Aqui fiz a comparação da senha usando bcrypt
-    if (bcrypt.compareSync(senha, clientes.senha)) {
-        // Se a senha estiver correta, gere um token JWT
-        const token = jwt.sign(
-            {
+        if (clientes == null) {
+            res.status(400).json({ erro: mensaPadrao })
+            return
+        }
+        // Aqui fiz a comparação da senha usando bcrypt
+        if (bcrypt.compareSync(senha, clientes.senha)) {
+            // Se a senha estiver correta, gere um token JWT
+            const token = jwt.sign(
+                {
+                    id: clientes.id,
+                    nome: clientes.nome
+                },
+                process.env.JWT_KEY as string, // Aqui é a chave secreta do .env
+                { expiresIn: "1h" } // O token expira em 1 hora
+            );
+            res.status(200).json({
                 id: clientes.id,
-                nome: clientes.nome
-            },
-            process.env.JWT_KEY as string, // Aqui é a chave secreta do .env
-            { expiresIn: "1h" } // O token expira em 1 hora
-        );
-        res.status(200).json({
-            id: clientes.id,
-            nome: clientes.nome,
-             email: clientes.email,
-            token 
-        });
-    } else {
-        // Se a senha estiver incorreta
-        res.status(400).json({ erro: mensaPadrao });
+                nome: clientes.nome,
+                email: clientes.email,
+                token
+            });
+        } else {
+            // Se a senha estiver incorreta
+            res.status(400).json({ erro: mensaPadrao });
+        }
+    } catch (error) {
+        res.status(400).json(error);
     }
-  } catch (error) {
-    res.status(400).json(error);
-  }
 })
 
 router.post("/", async (req, res) => {
@@ -166,10 +166,19 @@ router.delete("/:id", async (req, res) => {
     const { id } = req.params
 
     try {
-        const clientes = await prisma.cliente.delete({
-            where: { id: id }
+
+        await prisma.$transaction(async (tx) => {
+            await tx.telefone.deleteMany({
+                where: { clienteId: id }
+            })
+            await tx.endereco.deleteMany({
+                where: { clienteId: id }
+            })
+            await tx.cliente.delete({
+                where: { id }
+            })
         })
-        res.status(200).json(clientes)
+        res.status(200).json({message: "Cliente Deletado com sucesso"})
     } catch (error) {
         res.status(400).json({ erro: error })
     }
