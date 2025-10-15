@@ -29,11 +29,11 @@ router.post("/", async (req, res) => {
         return
     }
 
-    const { tel1, clienteId } = valida.data
+    const { tel1, tel2, clienteId } = valida.data
 
     try {
         const telefones = await prisma.telefone.create({
-            data: { tel1, clienteId }
+            data: { tel1, tel2, clienteId }
         })
         res.status(201).json(telefones)
     } catch (error) {
@@ -63,12 +63,12 @@ router.put("/:id", async (req, res) => {
         return
     }
 
-    const { tel1, clienteId } = valida.data
+    const { tel1, tel2, clienteId } = valida.data
 
     try {
         const telefones = await prisma.telefone.update({
             where: { id: Number(id) },
-            data: { tel1, clienteId }
+            data: { tel1, tel2, clienteId }
         })
         res.status(200).json(telefones)
     } catch (error) {
