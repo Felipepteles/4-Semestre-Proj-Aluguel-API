@@ -78,7 +78,7 @@ router.post("/", authMiddleware, async (req : Request | any, res) => {
     }
 
     // Pega o adminId que o middleware injetou na requisição!
-    const adminId = req.adminId;
+    const adminId = req.id;
 
     if (!adminId) {
         return res.status(401).json({ erro: 'ID do admin não encontrado no token.'});
