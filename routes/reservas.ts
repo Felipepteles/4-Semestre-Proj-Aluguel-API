@@ -40,7 +40,7 @@ function gerarTabelaReservaHTML(dados: any) {
                style="border-collapse: collapse; width: 100%; margin-bottom: 20px;">
           <tr><th align="left" style="background:#f0f0f0;">Nome</th><td>${dados.cliente.nome}</td></tr>
           <tr><th align="left" style="background:#f0f0f0;">E-mail</th><td>${dados.cliente.email || 'Não informado'}</td></tr>
-          <tr><th align="left" style="background:#f0f0f0;">Telefone</th><td>${dados.cliente.telefone || 'Não informado'}</td></tr>
+          <tr><th align="left" style="background:#f0f0f0;">Telefone</th><td>${dados.cliente.telefone.tel1 || 'Não informado'}</td></tr>
         </table>
 
         <h3>Informações da Reserva</h3>
