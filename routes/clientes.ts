@@ -3,10 +3,14 @@ import { Router } from 'express'
 import { z } from 'zod'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'; //Eu adicionei essa linha para importar o jsonwebtoken
+import logger from '../src/config/logger'
 
 const prisma = new PrismaClient()
 
 const router = Router()
+
+const loginAttempts = new Map<string, number>()
+const MAX_ATTEMPTS = 3 // Define o máximo de tentativas
 
 const clienteSchema = z.object({
     nome: z.string().min(3,
@@ -101,16 +105,34 @@ router.post("/login", async (req, res) => {
     const mensaPadrao = "Login ou senha incorretos"
 
     try {
+
+        const attempts = loginAttempts.get(email) || 0
+        if (attempts >= MAX_ATTEMPTS) {
+            // Log CRÍTICO (nível 'error' é o mais alto)
+            logger.error(`[BLOQUEIO] Tentativa de login para ${email} bloqueada (excesso de tentativas). IP: ${req.ip}`)
+            return res.status(429).json({ erro: "Muitas tentativas falhas. Conta bloqueada temporariamente." }) // 429 = Too Many Requests
+        }
+
         const clientes = await prisma.cliente.findFirst({
             where: { email }
         })
 
         if (clientes == null) {
+            // Log de AVISO (nível 'warn')
+            logger.warn(`Tentativa de login falhou (usuário não encontrado): ${email}`)
             res.status(400).json({ erro: mensaPadrao })
             return
         }
         // Aqui fiz a comparação da senha usando bcrypt
         if (bcrypt.compareSync(senha, clientes.senha)) {
+
+            // Senha Correta
+            // Log de INFORMAÇÃO (nível 'info')
+            logger.info(`Login bem-sucedido para cliente: ${clientes.nome} (${email})`)
+
+            // Limpa o contador de tentativas
+            loginAttempts.delete(email)
+
             // Se a senha estiver correta, gere um token JWT
             const token = jwt.sign(
                 {
@@ -127,10 +149,20 @@ router.post("/login", async (req, res) => {
                 token
             });
         } else {
-            // Se a senha estiver incorreta
+
+            // Senha Incorreta
+            // Incrementa o contador de tentativas
+            const newAttempts = attempts + 1
+            loginAttempts.set(email, newAttempts)
+
+            // Log de AVISO (nível 'warn')
+            logger.warn(`Tentativa de login falhou (senha incorreta) para: ${email}. Tentativa ${newAttempts}/${MAX_ATTEMPTS}.`)
+
             res.status(400).json({ erro: mensaPadrao });
         }
     } catch (error) {
+        // Log de ERRO (nível 'error')
+        logger.error(`[ERRO NO LOGIN] Falha inesperada ao tentar logar ${email}`, error)
         res.status(400).json(error);
     }
 })
@@ -178,7 +210,7 @@ router.delete("/:id", async (req, res) => {
                 where: { id }
             })
         })
-        res.status(200).json({message: "Cliente Deletado com sucesso"})
+        res.status(200).json({ message: "Cliente Deletado com sucesso" })
     } catch (error) {
         res.status(400).json({ erro: error })
     }
